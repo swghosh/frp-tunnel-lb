@@ -1,0 +1,27 @@
+# permissions for end users to view frpconnectors.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: clusterrole
+    app.kubernetes.io/instance: frpconnector-viewer-role
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: frp-tunnel-ingress
+    app.kubernetes.io/part-of: frp-tunnel-ingress
+    app.kubernetes.io/managed-by: kustomize
+  name: frpconnector-viewer-role
+rules:
+- apiGroups:
+  - frp.k8s.codecrafts.cf
+  resources:
+  - frpconnectors
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - frp.k8s.codecrafts.cf
+  resources:
+  - frpconnectors/status
+  verbs:
+  - get

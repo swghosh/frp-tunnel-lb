@@ -1,0 +1,12 @@
+apiVersion: frp.k8s.codecrafts.cf/v1alpha1
+kind: FRPConnector
+metadata:
+  labels:
+    app.kubernetes.io/name: frpconnector
+    app.kubernetes.io/instance: frpconnector-sample
+    app.kubernetes.io/part-of: frp-tunnel-ingress
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: frp-tunnel-ingress
+  name: frpconnector-sample
+spec:
+  # TODO(user): Add fields here

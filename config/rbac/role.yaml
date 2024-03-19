@@ -1,0 +1,32 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: manager-role
+rules:
+- apiGroups:
+  - frp.k8s.codecrafts.cf
+  resources:
+  - frpconnectors
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - frp.k8s.codecrafts.cf
+  resources:
+  - frpconnectors/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - frp.k8s.codecrafts.cf
+  resources:
+  - frpconnectors/status
+  verbs:
+  - get
+  - patch
+  - update
