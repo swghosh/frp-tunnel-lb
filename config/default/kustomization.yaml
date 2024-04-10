@@ -1,5 +1,5 @@
 # Adds namespace to all resources.
-namespace: frp-tunnel-ingress-system
+namespace: frp-tunnel-ingress-operator
 
 # Value of this field is prepended to the
 # names of all resources, e.g. a deployment named

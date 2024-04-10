@@ -1,0 +1,52 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  annotations:
+    alm-examples: '[]'
+    capabilities: Basic Install
+  name: frp-tunnel-ingress.v0.0.0
+  namespace: placeholder
+spec:
+  apiservicedefinitions: {}
+  customresourcedefinitions:
+    owned:
+    - description: FRPConnector is the Schema for the frpconnectors API
+      displayName: FRPConnector
+      kind: FRPConnector
+      name: frpconnectors.frp.k8s.codecrafts.cf
+      version: v1alpha1
+  description: Ingress operator for fast-reverse-proxy tunnel based Kubernetes Ingress
+    controller.
+  displayName: frp-tunnel-ingress-operator
+  icon:
+  - base64data: ""
+    mediatype: ""
+  install:
+    spec:
+      deployments: null
+    strategy: ""
+  installModes:
+  - supported: false
+    type: OwnNamespace
+  - supported: false
+    type: SingleNamespace
+  - supported: false
+    type: MultiNamespace
+  - supported: true
+    type: AllNamespaces
+  keywords:
+  - tunnel
+  - frp
+  - ingress
+  links:
+  - name: Frp Tunnel Ingress
+    url: https://frp-tunnel-ingress.domain
+  maintainers:
+  - email: swghosh@codecrafts.cf
+    name: swghosh
+  maturity: alpha
+  minKubeVersion: 1.25.0
+  provider:
+    name: k8s.codecrafts.cf
+    url: https://github.com/swghosh/frp-tunnel-ingress
+  version: 0.0.0

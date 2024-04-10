@@ -36,6 +36,7 @@ import (
 
 	frpv1alpha1 "github.com/swghosh/frp-tunnel-ingress/api/v1alpha1"
 	controller "github.com/swghosh/frp-tunnel-ingress/internal/frpconnector"
+	"github.com/swghosh/frp-tunnel-ingress/internal/ingress"
 	//+kubebuilder:scaffold:imports
 )
 
@@ -130,6 +131,14 @@ func main() {
 		os.Exit(1)
 	}
 	//+kubebuilder:scaffold:builder
+
+	if err = ingress.RegisterIngressController(setupLog, mgr, ingress.IngressControllerOptions{
+		IngressClassName:    "frp-tunnel",
+		ControllerClassName: ingress.IngressControllerName,
+		TunnelClient:        &ingress.MockTunnelClient{},
+	}); err != nil {
+		setupLog.Error(err, "unable to create ingress controller", "controller", ingress.IngressControllerName)
+	}
 
 	if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {
 		setupLog.Error(err, "unable to set up health check")
