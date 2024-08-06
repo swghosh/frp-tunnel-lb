@@ -225,5 +225,5 @@ spec:
   minKubeVersion: 1.25.0
   provider:
     name: k8s.codecrafts.cf
-    url: https://github.com/swghosh/frp-tunnel-ingress
+    url: https://github.com/swghosh/frp-tunnel-lb
   version: 0.0.1

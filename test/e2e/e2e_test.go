@@ -24,7 +24,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/swghosh/frp-tunnel-ingress/test/utils"
+	"github.com/swghosh/frp-tunnel-lb/test/utils"
 )
 
 const namespace = "frp-tunnel-ingress-system"

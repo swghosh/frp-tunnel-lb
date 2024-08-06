@@ -34,9 +34,9 @@ import (
 	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
-	frpv1alpha1 "github.com/swghosh/frp-tunnel-ingress/api/v1alpha1"
-	controller "github.com/swghosh/frp-tunnel-ingress/internal/frpconnector"
-	"github.com/swghosh/frp-tunnel-ingress/internal/ingress"
+	frpv1alpha1 "github.com/swghosh/frp-tunnel-lb/api/v1alpha1"
+	controller "github.com/swghosh/frp-tunnel-lb/internal/frpconnector"
+	"github.com/swghosh/frp-tunnel-lb/internal/ingress"
 	//+kubebuilder:scaffold:imports
 )
 

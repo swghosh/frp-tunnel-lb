@@ -24,7 +24,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
-	frpv1alpha1 "github.com/swghosh/frp-tunnel-ingress/api/v1alpha1"
+	frpv1alpha1 "github.com/swghosh/frp-tunnel-lb/api/v1alpha1"
 )
 
 // FRPConnectorReconciler reconciles a FRPConnector object

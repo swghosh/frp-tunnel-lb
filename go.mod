@@ -1,4 +1,5 @@
-module github.com/swghosh/frp-tunnel-ingress
+module github.com/swghosh/frp-tunnel-lb
+
 
 go 1.20
 

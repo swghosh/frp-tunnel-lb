@@ -27,7 +27,7 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	frpv1alpha1 "github.com/swghosh/frp-tunnel-ingress/api/v1alpha1"
+	frpv1alpha1 "github.com/swghosh/frp-tunnel-lb/api/v1alpha1"
 )
 
 var _ = Describe("FRPConnector Controller", func() {
