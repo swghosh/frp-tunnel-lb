@@ -3,3 +3,4 @@ Expose any k8s Service with zero networking config. Minimal Kubernetes Load Bala
 
 **Goal**: Expose your Service to the public network or outside the cluster internal network with no network configuration at all. Suitable for edge devices running k8s.
 
+More details, coming soon!
