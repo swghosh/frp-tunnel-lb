@@ -2,41 +2,86 @@ package controller
 
 import (
 	"context"
-	"fmt"
+	"encoding/json"
+	"strconv"
 
+	frpv1client "github.com/fatedier/frp/pkg/config/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 )
 
-func (r *LoadBalancerReconciler) ensureConfigMap(ctx context.Context, serviceDN, name, namespace string, ports []corev1.ServicePort) error {
-	yaml := fmt.Sprintf(`
-serverAddr: %s
-serverPort: %d
-auth:
-  method: token
-  token: %s
-proxies:
-`, RemoteServerHostName, RemoteServerPort, RemoteServerAuthKey)
+func generateFRPCJsonConfig(serviceDN string, ports []corev1.ServicePort) (string, error) {
+	serverPort, err := strconv.Atoi(RemoteServerPort)
+	if err != nil {
+		return "", err
+	}
 
-	for i, servicePort := range ports {
-		if servicePort.Protocol != corev1.ProtocolTCP {
+	config := frpv1client.ClientConfig{
+		ClientCommonConfig: frpv1client.ClientCommonConfig{
+			Auth: frpv1client.AuthClientConfig{
+				Method: frpv1client.AuthMethodToken,
+				Token:  RemoteServerAuthKey,
+			},
+			ServerAddr: RemoteServerHostName,
+			ServerPort: serverPort,
+		},
+	}
+
+	proxies := []frpv1client.TypedProxyConfig{}
+	for _, servicePort := range ports {
+		var proxy frpv1client.TypedProxyConfig
+		if servicePort.Protocol == corev1.ProtocolTCP {
+			proxy = frpv1client.TypedProxyConfig{
+				Type: "tcp",
+				ProxyConfigurer: &frpv1client.TCPProxyConfig{
+					ProxyBaseConfig: frpv1client.ProxyBaseConfig{
+						ProxyBackend: frpv1client.ProxyBackend{
+							LocalIP:   serviceDN,
+							LocalPort: int(servicePort.Port),
+						},
+					},
+					RemotePort: int(servicePort.Port),
+				},
+			}
+		} else if servicePort.Protocol == corev1.ProtocolUDP {
+			proxy = frpv1client.TypedProxyConfig{
+				Type: "udp",
+				ProxyConfigurer: &frpv1client.UDPProxyConfig{
+					ProxyBaseConfig: frpv1client.ProxyBaseConfig{
+						ProxyBackend: frpv1client.ProxyBackend{
+							LocalIP:   serviceDN,
+							LocalPort: int(servicePort.Port),
+						},
+					},
+					RemotePort: int(servicePort.Port),
+				},
+			}
+		} else {
+			// today we only support TCP & UDP!
 			continue
 		}
 
-		port := servicePort.Port
+		proxies = append(proxies, proxy)
+	}
 
-		yaml += fmt.Sprintf(`- name: "port-%d"
-  type: "tcp"
-  localIP: "%s"
-  localPort: %d
-  remotePort: %d
-`,
-			i, serviceDN, port, port)
+	config.Proxies = proxies
+
+	proxyConfigAsJson, err := json.Marshal(config)
+	if err != nil {
+		return "", err
+	}
+	return string(proxyConfigAsJson), nil
+}
+
+func (r *LoadBalancerReconciler) ensureConfigMap(ctx context.Context, serviceDN, name, namespace string, ports []corev1.ServicePort) error {
+	frpcConfig, err := generateFRPCJsonConfig(serviceDN, ports)
+	if err != nil {
+		return err
 	}
 
 	data := map[string]string{
-		"config.yaml": yaml,
+		"config.json": frpcConfig,
 	}
 
 	cm := &corev1.ConfigMap{
@@ -46,7 +91,7 @@ proxies:
 		},
 	}
 
-	_, err := controllerutil.CreateOrUpdate(ctx, r.Client, cm, func() error {
+	_, err = controllerutil.CreateOrUpdate(ctx, r.Client, cm, func() error {
 		cm.Data = data
 		return nil
 	})

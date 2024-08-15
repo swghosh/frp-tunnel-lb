@@ -90,7 +90,7 @@ func (r *LoadBalancerReconciler) Reconcile(ctx context.Context, req ctrl.Request
 								},
 								Args: []string{
 									"-c",
-									"/etc/frpc-conf/config.yaml",
+									"/etc/frpc-conf/config.json",
 								},
 								VolumeMounts: []corev1.VolumeMount{
 									{

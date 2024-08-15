@@ -30,25 +30,7 @@ func main() {
 	flag.Parse()
 
 	ctrl.SetLogger(zap.New(zap.UseFlagOptions(&opts)))
-	// mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{})
-	// if err != nil {
-	// 	fmt.Println(err, "unable to start manager")
-	// 	return
-	// }
 
-	// if err = (&Controller{
-	// 	Client: mgr.GetClient(),
-	// 	Scheme: mgr.GetScheme(),
-	// }).SetupWithManager(mgr); err != nil {
-	// 	fmt.Println(err, "unable to create controller")
-	// 	return
-	// }
-
-	// fmt.Println("Starting manager")
-	// if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {
-	// 	fmt.Println(err, "problem running manager")
-	// 	return
-	// }
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		// Scheme:           scheme,
 		// LeaderElection:   true,
