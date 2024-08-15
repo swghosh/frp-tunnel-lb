@@ -3,6 +3,7 @@ package controller
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"strconv"
 
 	frpv1client "github.com/fatedier/frp/pkg/config/v1"
@@ -11,13 +12,34 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 )
 
+type ProxyConfigExt struct {
+	// eg.
+	// name = "wireguard"
+	// type = "udp"
+	// localIP = "127.0.0.1"
+	// localPort = 51820
+	// remotePort = 51820
+
+	Name       string `json:"name"`
+	Type       string `json:"type"`
+	LocalIP    string `json:"localIP"`
+	LocalPort  int    `json:"localPort"`
+	RemotePort int    `json:"remotePort"`
+}
+
+// clientConfigExt extends the `frp.ClientConfig` to support the correct marshal function.
+type clientConfigExt struct {
+	frpv1client.ClientCommonConfig `json:",inline"`
+	Proxies                        []ProxyConfigExt `json:"proxies"`
+}
+
 func generateFRPCJsonConfig(serviceDN string, ports []corev1.ServicePort) (string, error) {
 	serverPort, err := strconv.Atoi(RemoteServerPort)
 	if err != nil {
 		return "", err
 	}
 
-	config := frpv1client.ClientConfig{
+	config := &clientConfigExt{
 		ClientCommonConfig: frpv1client.ClientCommonConfig{
 			Auth: frpv1client.AuthClientConfig{
 				Method: frpv1client.AuthMethodToken,
@@ -26,46 +48,26 @@ func generateFRPCJsonConfig(serviceDN string, ports []corev1.ServicePort) (strin
 			ServerAddr: RemoteServerHostName,
 			ServerPort: serverPort,
 		},
+		Proxies: make([]ProxyConfigExt, 0),
 	}
 
-	proxies := []frpv1client.TypedProxyConfig{}
-	for _, servicePort := range ports {
-		var proxy frpv1client.TypedProxyConfig
+	for i, servicePort := range ports {
+		proxyConfig := ProxyConfigExt{}
 		if servicePort.Protocol == corev1.ProtocolTCP {
-			proxy = frpv1client.TypedProxyConfig{
-				Type: "tcp",
-				ProxyConfigurer: &frpv1client.TCPProxyConfig{
-					ProxyBaseConfig: frpv1client.ProxyBaseConfig{
-						ProxyBackend: frpv1client.ProxyBackend{
-							LocalIP:   serviceDN,
-							LocalPort: int(servicePort.Port),
-						},
-					},
-					RemotePort: int(servicePort.Port),
-				},
-			}
+			proxyConfig.Type = "tcp"
 		} else if servicePort.Protocol == corev1.ProtocolUDP {
-			proxy = frpv1client.TypedProxyConfig{
-				Type: "udp",
-				ProxyConfigurer: &frpv1client.UDPProxyConfig{
-					ProxyBaseConfig: frpv1client.ProxyBaseConfig{
-						ProxyBackend: frpv1client.ProxyBackend{
-							LocalIP:   serviceDN,
-							LocalPort: int(servicePort.Port),
-						},
-					},
-					RemotePort: int(servicePort.Port),
-				},
-			}
+			proxyConfig.Type = "udp"
 		} else {
-			// today we only support TCP & UDP!
+			// today we can only support TCP and UDP yet
 			continue
 		}
 
-		proxies = append(proxies, proxy)
+		proxyConfig.Name = fmt.Sprintf("port-%d", i)
+		proxyConfig.LocalIP = serviceDN
+		proxyConfig.LocalPort = int(servicePort.Port)
+		proxyConfig.RemotePort = int(servicePort.Port)
+		config.Proxies = append(config.Proxies, proxyConfig)
 	}
-
-	config.Proxies = proxies
 
 	proxyConfigAsJson, err := json.Marshal(config)
 	if err != nil {
