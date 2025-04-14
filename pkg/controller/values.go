@@ -2,6 +2,8 @@ package controller
 
 import "os"
 
+const LoadBalancerClassName = "k8s.codecrafts.cf/frp-tunnel-lb"
+
 var (
 	RemoteServerHostName = os.Getenv("FRPS_SERVER_HOST")
 	RemoteServerAuthKey  = os.Getenv("FRPS_SERVER_AUTH_KEY")
