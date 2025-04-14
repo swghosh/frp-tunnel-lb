@@ -39,6 +39,11 @@ func (r *LoadBalancerReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		return ctrl.Result{}, nil
 	}
 
+	if *service.Spec.LoadBalancerClass != LoadBalancerClassName {
+		logger.Info("LoadBalancerClass unknown, skipping", "service", req.NamespacedName, "loadBalancerClass", *service.Spec.LoadBalancerClass)
+		return ctrl.Result{}, nil
+	}
+
 	deploymentName := service.Name + "-lb"
 	var deployment appsv1.Deployment
 	err := r.Get(ctx, types.NamespacedName{Name: deploymentName, Namespace: service.Namespace}, &deployment)
